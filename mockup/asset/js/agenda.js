@@ -249,7 +249,9 @@ function prepareSlotTmp(newSlot){
 			}
 			else{
 				slotNew[i] = slotTmp[i];
-				NextMinD = i+slotNew[i].dur;
+				if (slotNew[i] != undefined) {
+					NextMinD = i+slotNew[i].dur;
+				}
 			}
 		}
 	}
@@ -388,8 +390,8 @@ const changeStartTime= (id) => {
 	HH = parseInt(newTime[0]);
 	MM = parseInt(newTime[1]);
 	if (Number.isInteger(HH) && Number.isInteger(MM) && MM<60 && HH>0) {
-		slotTmp[tempSlot.minD] = undefined;
 		let newMinD = timeToMinD(HH,MM);
+		console.log(tempSlot.dur);
 		let newSlot =  {
 			id:id,
 			title:tempSlot.title,
@@ -397,6 +399,7 @@ const changeStartTime= (id) => {
 			venue:tempSlot.venue,
 			minD:newMinD
 		}
+		slotTmp[tempSlot.minD] = undefined;
 		prepareSlotTmp(newSlot);
 	}
 	else{
@@ -460,6 +463,9 @@ const removeGap = (dur,minD,x) =>{
 	slotTmp = slotNew;
 	rendAgendaSlot();
 }
+
+
+
 
 rendAgendaInfo();
 rendAgendaSlot();
