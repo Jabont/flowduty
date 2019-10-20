@@ -7,6 +7,7 @@ let slotTmp = [];
 let slotNew = [];
 let slotNew2 = [];
 let slotLast = [];
+let slotData = {};
 let nowID = 2;
 let slotArray = [];
 
@@ -104,9 +105,7 @@ var duty = {
 	"s1":0
 }
 
-var theVenue = [
-"ออดิทอเรียม", "โถง"
-]
+let theVenue = []
 
 slotNew[540] = {
 	"id": "s0",
@@ -138,7 +137,6 @@ slotNew[720] = {
 	0
 	]
 }
-
 slotTmp = slotNew;
 
 
@@ -148,6 +146,7 @@ function rendAgendaInfo(){
 
 function rendAgendaSlot(){
 	let q = 1;
+	theVenue = [];
 	agenda_body.innerHTML = '';
 	for (let i in slotNew) {
 		if (slotNew[i] != undefined) {
@@ -156,20 +155,25 @@ function rendAgendaSlot(){
 			let stop = slotNew[i].stop;
 			let title = slotNew[i].title;
 			let venue = slotNew[i].venue;
+			console.log(venue);
+			theVenue = theVenue.filter(f => f != venue).concat([venue]);
+			console.log(theVenue);
 			let dur = slotNew[i].dur;
 			let row = document.createElement('div');
 			row.innerHTML = renderSlotItem(id,q,start,stop,title,venue,dur,i);
 			agenda_body.appendChild(row);
 			q++;
+
+			slotData[id] = slotNew[i];
 		}
 	}
 	expectMinD = -1;
+	renderVenueList();
 }
 
 function renderVenueList() {
 	let option = "";
 	for (let i in theVenue) {
-		console.log(theVenue[i]);
 		option += `<option>${theVenue[i]}</option>`
 		
 	}
@@ -201,14 +205,15 @@ function agd_addNew(){
 	let title = agdNew_title.value;
 	let dur = parseInt(agdNew_duration.value);
 	let venue = agdNew_venue.value;
-	agdNew_startTimeH.value = '00';
-	agdNew_startTimeM.value = '00';
-	agdNew_title.value = '';
-	agdNew_duration.value = '60';
-	agdNew_venue.value = '';	
 	let id = "s"+nowID;
 	nowID++;
 	createSlotObj(id,title,startH,startM,dur,venue);
+	let lastHM = minDtoTime(slotTmp[slotTmp.length-1].dur+slotTmp[slotTmp.length-1].minD);
+	agdNew_startTimeH.value = (lastHM[0]).pad();
+	agdNew_startTimeM.value = (lastHM[1]).pad();
+	agdNew_title.value = '';
+	agdNew_duration.value = '60';
+	agdNew_title.focus();
 	return false;
 }
 
@@ -313,7 +318,7 @@ let expectMinD = -1;
 const renderSlotItem = (id,q,start,stop,title,venue,dur,minD) => {
 	let txt = '';
 	if (expectMinD != -1 && expectMinD != minD) {
-		txt += `<sp class="bg-smoke" ondblclick="removeGap(${minD-expectMinD},${minD},this)"></sp>`;
+		txt += `<sp class="bg-smoke l agendaGap" ondblclick="removeGap(${minD-expectMinD},${minD},this)" title="Double Clicks for remove the gap"></sp>`;
 	}
 	txt += `
 	<theboxes class="middle spacing-s -clip">
@@ -323,14 +328,15 @@ const renderSlotItem = (id,q,start,stop,title,venue,dur,minD) => {
 	<box col="2"><inner class="padding padding-vs-hzt t-center b5 bg-grey-1">
 	${(start[0]).pad()}:${(start[1]).pad()} - ${(stop[0]).pad()}:${(stop[1]).pad()}
 	</inner></box>
-	<box col="4"><inner class="padding padding-vs-hzt t-left b7">
-	<span class="size-s upper b5 cl-grey">${id}</span> ${title}
+	<box col="4.5"><inner class="t-left b7">
+	<!--<span class="size-s upper b5 cl-grey">${id}</span> -->
+	<input class="input wide cl-black padding-vs-hzt no-bd inline-block" type="text" placeholder="Title" required autocomplete="off" value="${title}" minD="${minD}" onchange="changeSlotData(this,'title')">
 	</inner></box>
-	<box col="3"><inner class="padding padding-vs-hzt t-left b5">
-	${venue}
+	<box col="2.5"><inner class="t-left b5">
+	<input class="input wide padding-s-hzt no-bd" type="text" value="${venue}" list="theVenue_list" autocomplete="off" minD="${minD}" onchange="changeSlotData(this,'venue')">
 	</inner></box>
 	<box col="1"><inner class="b7">
-	<input class="padding-xs-hzt  input wide t-center no-bd" type="number" placeholder="D" required="" value="${dur}" step="5" min="0" slot-id="${minD}" onchange="changeDuration(this)">
+	<input class="padding-xs-hzt input wide t-center no-bd" type="number" placeholder="D" required="" value="${dur}" step="5" min="0" minD="${minD}" onchange="changeDuration(this)">
 	</inner></box>
 	<box col="1"><inner class="padding padding-vs-hzt t-center b7">
 	..
@@ -349,23 +355,44 @@ Number.prototype.pad = function(size) {
 
 const changeDuration = (x) => {
 	newDuration = parseInt(x.value);
-	minD = x.getAttribute('slot-id');
-	if (newDuration == 0) {
-		if (confirm('ต้องการลบ slot นี้หรือไม่')) {
-			slotNew[minD] = undefined;
-			rendAgendaSlot();
+	minD = x.getAttribute('minD');
+	if (x.value != '') {
+		if (newDuration == 0) {
+			if (confirm('ต้องการลบ slot นี้หรือไม่')) {
+				slotNew[minD] = undefined;
+				rendAgendaSlot();
+			}
+			else{
+				x.value = 5;
+			}
 		}
 		else{
-			x.value = 5;
+			slotTmp[minD].dur = newDuration;
+			calSlotOnChangeDuration(minD);
 		}
 	}
 	else{
-		slotTmp[minD].dur = newDuration;
-		calSlotOnChangeDuration(minD);
+		x.value = slotTmp[minD].dur;
 	}
 }
 
-let calSlotOnChangeDuration = (newMinD) => {
+// const changeStartTime= (x) => {
+// 	let slotId = x.getAttribute('slot-id');
+// 	let newValue = x.value;
+// 	let theSlot = slotData[slotId]
+// 	let minD = theSlot.minD;
+// 	slotTmp[minD] = undefined;
+// }
+
+const changeSlotData= (x,prop) => {
+	let newValue = x.value;
+	let minD = x.getAttribute('minD');
+
+	slotTmp[minD][prop] = newValue;
+	rendAgendaSlot()
+}
+
+const calSlotOnChangeDuration = (newMinD) => {
 	slotNew = [];
 	NextMinD = 0;
 	for(let i in slotTmp){
@@ -380,7 +407,7 @@ let calSlotOnChangeDuration = (newMinD) => {
 	}
 	slotTmp = slotNew;
 	rendAgendaSlot();
-	document.querySelector(`[slot-id="${newMinD}"]`).focus();
+	document.querySelector(`[minD="${newMinD}"]`).focus();
 }
 
 const calSlotOnChangeBelow = (i,NextMinD) =>{
@@ -416,5 +443,4 @@ const removeGap = (dur,minD,x) =>{
 
 rendAgendaInfo();
 rendAgendaSlot();
-renderVenueList();
 renderPeople();
