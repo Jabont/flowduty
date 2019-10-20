@@ -165,6 +165,9 @@ function rendAgendaSlot(){
 			q++;
 
 			slotData[id] = slotNew[i];
+		}else{
+			slotTmp.splice(i,1);
+			slotNew.splice(i,1);
 		}
 	}
 	expectMinD = -1;
@@ -245,6 +248,7 @@ function prepareSlotTmp(newSlot){
 				NextMinD += slotTmp[i].dur;
 				if (i == newSlot.minD) {
 					slotTmp[i] = undefined;
+					slotTmp.splice(i,1);
 				}
 			}
 			else{
@@ -363,6 +367,7 @@ const changeDuration = (x) => {
 		if (newDuration == 0) {
 			if (confirm('ต้องการลบ slot นี้หรือไม่')) {
 				slotNew[minD] = undefined;
+				slotNew.splice(minD,1);
 				rendAgendaSlot();
 			}
 			else{
@@ -400,6 +405,7 @@ const changeStartTime= (id) => {
 			minD:newMinD
 		}
 		slotTmp[tempSlot.minD] = undefined;
+		slotTmp.splice(tempSlot.minD,1);
 		prepareSlotTmp(newSlot);
 	}
 	else{
