@@ -325,7 +325,8 @@ const renderSlotItem = (id,q,start,stop,title,venue,dur,minD) => {
 	<box col="1"><inner class="padding padding-vs-hzt t-center b7">
 	${q}
 	</inner></box>
-	<box col="2"><inner class="padding padding-vs-hzt t-center b5 bg-grey-1">
+
+	<box col="2"><inner class="padding padding-vs-hzt t-center b5 bg-grey-1" onclick="changeStartTime('${id}')">
 	${(start[0]).pad()}:${(start[1]).pad()} - ${(stop[0]).pad()}:${(stop[1]).pad()}
 	</inner></box>
 	<box col="4.5"><inner class="t-left b7">
@@ -376,13 +377,32 @@ const changeDuration = (x) => {
 	}
 }
 
-// const changeStartTime= (x) => {
-// 	let slotId = x.getAttribute('slot-id');
-// 	let newValue = x.value;
-// 	let theSlot = slotData[slotId]
-// 	let minD = theSlot.minD;
-// 	slotTmp[minD] = undefined;
-// }
+const changeStartTime= (id) => {
+	console.log(id);
+	let tempSlot = slotData[id];
+	console.log(tempSlot);
+	let HH = (tempSlot.start[0]).pad();
+	let MM = (tempSlot.start[1]).pad()
+	let newTime = prompt("ระบุเวลาเริ่ม ในรูปแบบ HH:MM",`${HH}:${MM}`);
+	newTime = newTime.split(":");
+	HH = parseInt(newTime[0]);
+	MM = parseInt(newTime[1]);
+	if (Number.isInteger(HH) && Number.isInteger(MM) && MM<60 && HH>0) {
+		slotTmp[tempSlot.minD] = undefined;
+		let newMinD = timeToMinD(HH,MM);
+		let newSlot =  {
+			id:id,
+			title:tempSlot.title,
+			dur:tempSlot.dur,
+			venue:tempSlot.venue,
+			minD:newMinD
+		}
+		prepareSlotTmp(newSlot);
+	}
+	else{
+		alert('การระบุเวลาผิดพลาด')
+	}
+}
 
 const changeSlotData= (x,prop) => {
 	let newValue = x.value;
