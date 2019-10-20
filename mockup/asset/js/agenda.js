@@ -18,9 +18,10 @@ var v_agd_title = new Vue({
 })
 
 var people = {
-	"1234":{
-		id:"1234",
-		display:"Jabont",
+	"1623763270":{
+		id:"1623763270",
+		display:"Jabont IT8",
+		userName:"Jabont",
 		role:"Advisor",
 		squad:["สันทนาการ","ที่ปรึกษา"],
 		permission:{
@@ -28,9 +29,10 @@ var people = {
 			write:true
 		}
 	},
-	"1235":{
-		id:"1235",
-		display:"New",
+	"100000331270605":{
+		id:"100000331270605",
+		display:"New IT16",
+		userName:"New",
 		role:"รองประธานค่าย",
 		squad:["ประธานค่าย"],
 		permission:{
@@ -38,9 +40,10 @@ var people = {
 			write:true
 		}
 	},
-	"1236":{
-		id:"1236",
-		display:"Ong",
+	"100002741030585":{
+		id:"100002741030585",
+		display:"Ong IT16",
+		userName:"Ong",
 		role:"ประธานค่าย",
 		squad:["ประธานค่าย"],
 		permission:{
@@ -102,14 +105,14 @@ var duty = {
 }
 
 var theVenue = [
-	"ออดิทอเรียม", "โถง"
+"ออดิทอเรียม", "โถง"
 ]
 
 slotNew[540] = {
 	"id": "s0",
 	"title": "พิธีเปิด",
 	"dur": 60,
-	"venue": "Audi",
+	"venue": "ออดิทอเรียม",
 	"minD": 540,
 	"start": [
 	9,
@@ -173,6 +176,25 @@ function renderVenueList() {
 	theVenue_list.innerHTML = option;
 }
 
+function renderPeople(){
+	let txt = ``;
+	for(i in people){
+		txt += `
+		<box col="1.5"><inner class="circle bg-grey-3">
+		<div class="blank bg-cover" ratio="1:1" style="background-image:url('https://graph.facebook.com/${people[i].id}/picture?width=48&height=48')"></div>
+		</inner></box>
+		<box col="10.5"><inner class="">
+		<h5 class="b5"><b>@${people[i].userName}</b> - ${people[i].display}</h5>
+		</inner></box>
+		`
+	}
+	peopleWrap.innerHTML = txt;
+}
+
+function addPeople(peopleObj){
+	people[peopleObj.id] = peopleObj;
+	renderPeople();
+}
 function agd_addNew(){
 	let startH = parseInt(agdNew_startTimeH.value);
 	let startM = parseInt(agdNew_startTimeM.value);
@@ -302,7 +324,7 @@ const renderSlotItem = (id,q,start,stop,title,venue,dur,minD) => {
 	${(start[0]).pad()}:${(start[1]).pad()} - ${(stop[0]).pad()}:${(stop[1]).pad()}
 	</inner></box>
 	<box col="4"><inner class="padding padding-vs-hzt t-left b7">
-	${id} ${title}
+	<span class="size-s upper b5 cl-grey">${id}</span> ${title}
 	</inner></box>
 	<box col="3"><inner class="padding padding-vs-hzt t-left b5">
 	${venue}
@@ -395,3 +417,4 @@ const removeGap = (dur,minD,x) =>{
 rendAgendaInfo();
 rendAgendaSlot();
 renderVenueList();
+renderPeople();
