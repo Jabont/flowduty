@@ -343,7 +343,7 @@ const renderSlotItem = (id,q,start,stop,title,venue,dur,minD) => {
 	<input class="input wide padding-s-hzt no-bd" type="text" value="${venue}" list="theVenue_list" autocomplete="off" minD="${minD}" onchange="changeSlotData(this,'venue')">
 	</inner></box>
 	<box col="1"><inner class="b7">
-	<input class="padding-xs-hzt input wide t-center no-bd" type="number" placeholder="D" required="" value="${dur}" step="5" min="0" minD="${minD}" onchange="changeDuration(this)">
+	<input class="padding-xs-hzt input wide t-center no-bd durSlot" type="number" placeholder="D" required="" value="${dur}" step="5" min="0" minD="${minD}" onchange="changeDuration(this)">
 	</inner></box>
 	<box col="1"><inner class="padding padding-vs-hzt t-center b7">
 	..
@@ -436,7 +436,7 @@ const calSlotOnChangeDuration = (newMinD) => {
 	}
 	slotTmp = slotNew;
 	rendAgendaSlot();
-	document.querySelector(`[minD="${newMinD}"]`).focus();
+	document.querySelector(`.durSlot[minD="${newMinD}"]`).focus();
 }
 
 const calSlotOnChangeBelow = (i,NextMinD) =>{
